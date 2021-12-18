@@ -1,0 +1,131 @@
+boost::ext::sml::v1_1_4::aux::pool<>::pool(Ts&& ...) [with Ts = {boost::ext::sml::v1_1_4::aux::init, boost::ext::sml::v1_1_4::aux::pool<>}]
+boost::ext::sml::v1_1_4::aux::pool<Ts>::pool(Ts ...) [with Ts = {
+  boost::ext::sml::v1_1_4::front::transition<
+    boost::ext::sml::v1_1_4::front::state<
+      boost::ext::sml::v1_1_4::aux::string< char, 'f', 'i', 'n', ' ', 'w', 'a', 'i', 't', ' ', '1' >
+    >,
+    boost::ext::sml::v1_1_4::front::state<
+      boost::ext::sml::v1_1_4::aux::string< char, 'e', 's', 't', 'a', 'b', 'l', 'i', 's', 'h', 'e', 'd' >
+        ( boost::ext::sml::v1_1_4::front::initial_state )
+    >,
+    boost::ext::sml::v1_1_4::front::event<{anonymous}::release>,
+    boost::ext::sml::v1_1_4::front::always,
+    boost::ext::sml::v1_1_4::aux::zero_wrapper<{anonymous}::<lambda()>, void>
+  >,
+  boost::ext::sml::v1_1_4::front::transition<
+    boost::ext::sml::v1_1_4::front::state<
+      boost::ext::sml::v1_1_4::aux::string<char, 'f', 'i', 'n', ' ', 'w', 'a', 'i', 't', ' ', '2'>
+    >,
+    boost::ext::sml::v1_1_4::front::state<
+      boost::ext::sml::v1_1_4::aux::string<char, 'f', 'i', 'n', ' ', 'w', 'a', 'i', 't', ' ', '1'>
+    >,
+    boost::ext::sml::v1_1_4::front::event<{anonymous}::ack>,
+    boost::ext::sml::v1_1_4::aux::zero_wrapper<{anonymous}::<lambda(const {anonymous}::ack&)>, void>,
+    boost::ext::sml::v1_1_4::front::none
+  >,
+  boost::ext::sml::v1_1_4::front::transition<
+    boost::ext::sml::v1_1_4::front::state<
+      boost::ext::sml::v1_1_4::aux::string<char, 't', 'i', 'm', 'e', 'd', ' ', 'w', 'a', 'i', 't'>
+    >,
+    boost::ext::sml::v1_1_4::front::state<
+      boost::ext::sml::v1_1_4::aux::string<char, 'f', 'i', 'n', ' ', 'w', 'a', 'i', 't', ' ', '2'>
+    >,
+    boost::ext::sml::v1_1_4::front::event<{anonymous}::fin>,
+    boost::ext::sml::v1_1_4::aux::zero_wrapper<{anonymous}::<lambda(const {anonymous}::fin&)>, void>,
+    boost::ext::sml::v1_1_4::aux::zero_wrapper<{anonymous}::<lambda()>, void>
+  >,
+  boost::ext::sml::v1_1_4::front::transition<
+    boost::ext::sml::v1_1_4::front::state<
+      boost::ext::sml::v1_1_4::back::terminate_state
+    >,
+    boost::ext::sml::v1_1_4::front::state<
+      boost::ext::sml::v1_1_4::aux::string<char, 't', 'i', 'm', 'e', 'd', ' ', 'w', 'a', 'i', 't'>
+    >,
+    boost::ext::sml::v1_1_4::front::event<{anonymous}::timeout>,
+    boost::ext::sml::v1_1_4::front::always, boost::ext::sml::v1_1_4::aux::zero_wrapper<
+      {anonymous}::<lambda()>, void
+    >
+  >
+}
+]
+boost::ext::sml::v1_1_4::aux::pool<Ts>::pool(const boost::ext::sml::v1_1_4::aux::pool<TArgs ...>&)
+[
+  with TArgs = {};
+  Ts = {boost::ext::sml::v1_1_4::back::sm_impl<boost::ext::sml::v1_1_4::back::sm_policy<{anonymous}::hello_world> >}
+]
+
+boost::ext::sml::v1_1_4::back::on_entry<T, TEvent>::on_entry(const TEvent&)
+  [with T = boost::ext::sml::v1_1_4::back::_; TEvent = boost::ext::sml::v1_1_4::back::initial]
+
+static bool boost::ext::sml::v1_1_4::back::transitions<T>::execute(const TEvent&, SM&, TDeps&, TSubs&, typename SM::state_t&) [with TEvent =
+  {anonymous}::release;
+  SM = boost::ext::sml::v1_1_4::back::sm_impl<
+    boost::ext::sml::v1_1_4::back::sm_policy<{anonymous}::hello_world>
+  >;
+  TDeps = boost::ext::sml::v1_1_4::aux::pool<>;
+  TSubs = boost::ext::sml::v1_1_4::aux::pool<
+    boost::ext::sml::v1_1_4::back::sm_impl<boost::ext::sml::v1_1_4::back::sm_policy<{anonymous}::hello_world> >
+  >;
+  T = boost::ext::sml::v1_1_4::front::transition<
+    boost::ext::sml::v1_1_4::front::state<
+      boost::ext::sml::v1_1_4::aux::string<char, 'f', 'i', 'n', ' ', 'w', 'a', 'i', 't', ' ', '1'>
+    >,
+    boost::ext::sml::v1_1_4::front::state<
+      boost::ext::sml::v1_1_4::aux::string<char, 'e', 's', 't', 'a', 'b', 'l', 'i', 's', 'h', 'e', 'd'>
+        (boost::ext::sml::v1_1_4::front::initial_state)
+    >,
+    boost::ext::sml::v1_1_4::front::event<{anonymous}::release>,
+    boost::ext::sml::v1_1_4::front::always,
+    boost::ext::sml::v1_1_4::aux::zero_wrapper<{anonymous}::<lambda()>, void>
+  >;
+  typename SM::state_t = unsigned char
+]
+static bool boost::ext::sml::v1_1_4::back::transitions<T>::execute(const TEvent&, SM&, TDeps&, TSubs&, typename SM::state_t&) [with TEvent =
+  {anonymous}::ack;
+  SM = boost::ext::sml::v1_1_4::back::sm_impl<boost::ext::sml::v1_1_4::back::sm_policy<{anonymous}::hello_world> >;
+  TDeps = boost::ext::sml::v1_1_4::aux::pool<>;
+  TSubs = boost::ext::sml::v1_1_4::aux::pool<boost::ext::sml::v1_1_4::back::sm_impl<boost::ext::sml::v1_1_4::back::sm_policy<{anonymous}::hello_world> > >;
+  T = boost::ext::sml::v1_1_4::front::transition<
+    boost::ext::sml::v1_1_4::front::state<
+      boost::ext::sml::v1_1_4::aux::string<char, 'f', 'i', 'n', ' ', 'w', 'a', 'i', 't', ' ', '2'>
+    >,
+    boost::ext::sml::v1_1_4::front::state<
+      boost::ext::sml::v1_1_4::aux::string<char, 'f', 'i', 'n', ' ', 'w', 'a', 'i', 't', ' ', '1'>
+    >,
+    boost::ext::sml::v1_1_4::front::event<{anonymous}::ack>,
+    boost::ext::sml::v1_1_4::aux::zero_wrapper<{anonymous}::<lambda(const {anonymous}::ack&)>, void>,
+    boost::ext::sml::v1_1_4::front::none>;
+  typename SM::state_t = unsigned char
+]
+static bool boost::ext::sml::v1_1_4::back::transitions<T>::execute(const TEvent&, SM&, TDeps&, TSubs&, typename SM::state_t&) [with TEvent =
+  {anonymous}::fin;
+  SM = boost::ext::sml::v1_1_4::back::sm_impl<boost::ext::sml::v1_1_4::back::sm_policy<{anonymous}::hello_world> >;
+  TDeps = boost::ext::sml::v1_1_4::aux::pool<>;
+  TSubs = boost::ext::sml::v1_1_4::aux::pool<boost::ext::sml::v1_1_4::back::sm_impl<boost::ext::sml::v1_1_4::back::sm_policy<{anonymous}::hello_world> > >;
+  T = boost::ext::sml::v1_1_4::front::transition<
+    boost::ext::sml::v1_1_4::front::state<
+      boost::ext::sml::v1_1_4::aux::string<char, 't', 'i', 'm', 'e', 'd', ' ', 'w', 'a', 'i', 't'>
+    >,
+    boost::ext::sml::v1_1_4::front::state<
+      boost::ext::sml::v1_1_4::aux::string<char, 'f', 'i', 'n', ' ', 'w', 'a', 'i', 't', ' ', '2'>
+    >,
+    boost::ext::sml::v1_1_4::front::event<{anonymous}::fin>,
+    boost::ext::sml::v1_1_4::aux::zero_wrapper<{anonymous}::<lambda(const {anonymous}::fin&)>, void>,
+    boost::ext::sml::v1_1_4::aux::zero_wrapper<{anonymous}::<lambda()>, void> >;
+  typename SM::state_t = unsigned char
+]
+static bool boost::ext::sml::v1_1_4::back::transitions<T>::execute(const TEvent&, SM&, TDeps&, TSubs&, typename SM::state_t&) [with TEvent =
+  {anonymous}::timeout;
+  SM = boost::ext::sml::v1_1_4::back::sm_impl<boost::ext::sml::v1_1_4::back::sm_policy<{anonymous}::hello_world> >;
+  TDeps = boost::ext::sml::v1_1_4::aux::pool<>;
+  TSubs = boost::ext::sml::v1_1_4::aux::pool<boost::ext::sml::v1_1_4::back::sm_impl<boost::ext::sml::v1_1_4::back::sm_policy<{anonymous}::hello_world> > >;
+  T = boost::ext::sml::v1_1_4::front::transition<
+    boost::ext::sml::v1_1_4::front::state<boost::ext::sml::v1_1_4::back::terminate_state>,
+    boost::ext::sml::v1_1_4::front::state<
+      boost::ext::sml::v1_1_4::aux::string<char, 't', 'i', 'm', 'e', 'd', ' ', 'w', 'a', 'i', 't'>
+    >,
+    boost::ext::sml::v1_1_4::front::event<{anonymous}::timeout>,
+    boost::ext::sml::v1_1_4::front::always,
+    boost::ext::sml::v1_1_4::aux::zero_wrapper<{anonymous}::<lambda()>, void> >;
+  typename SM::state_t = unsigned char
+]
