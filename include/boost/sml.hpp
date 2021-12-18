@@ -6,6 +6,9 @@
 //
 #ifndef BOOST_SML_HPP
 #define BOOST_SML_HPP
+
+#include <iostream>
+
 #if (__cplusplus < 201305L && _MSC_VER < 1900)
 #error "[Boost::ext].SML requires C++14 support (Clang-3.4+, GCC-5.1+, MSVC-2015+)"
 #else
@@ -387,44 +390,50 @@ struct missing_ctor_parameter {
 };
 template <class T>
 missing_ctor_parameter<T> try_get(...) {
+  std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;
   return {};
 }
 template <class T>
 T try_get(const pool_type<T> *object) {
+  std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;
   return object->value;
 }
 template <class T>
 const T &try_get(const pool_type<const T &> *object) {
+  std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;
   return object->value;
 }
 template <class T>
 T &try_get(const pool_type<T &> *object) {
+  std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;
   return object->value;
 }
 template <class T, class TPool>
 T &get(TPool &p) {
+  std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;
   return static_cast<pool_type<T> &>(p).value;
 }
 template <class T, class TPool>
 const T &cget(const TPool &p) {
+  std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;
   return static_cast<const pool_type<T> &>(p).value;
 }
 template <class... Ts>
 struct pool : pool_type<Ts>... {
   using boost_di_inject__ = type_list<Ts...>;
   pool() = default;
-  explicit pool(Ts... ts) : pool_type<Ts>(ts)... {}
+  explicit pool(Ts... ts) : pool_type<Ts>(ts)... {std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;}
   template <class... TArgs>
-  pool(init, const pool<TArgs...> &p) : pool_type<Ts>(try_get<aux::remove_const_t<aux::remove_reference_t<Ts>>>(&p))... {}
+  pool(init, const pool<TArgs...> &p) : pool_type<Ts>(try_get<aux::remove_const_t<aux::remove_reference_t<Ts>>>(&p))... {std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;}
   template <class... TArgs>
-  pool(const pool<TArgs...> &p) : pool_type<Ts>(init{}, p)... {}
+  pool(const pool<TArgs...> &p) : pool_type<Ts>(init{}, p)... {std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;}
 };
 template <>
 struct pool<> {
   using boost_di_inject__ = type_list<>;
   pool() = default;
   template <class... Ts>
-  explicit pool(Ts &&...) {}
+  explicit pool(Ts &&...) {std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;}
   __BOOST_SML_ZERO_SIZE_ARRAY(byte);
 };
 template <int, class>
@@ -646,7 +655,7 @@ class queue_event_call {
 
  public:
   queue_event_call() = default;
-  explicit queue_event_call(const call_t &call) : call{call} {}
+  explicit queue_event_call(const call_t &call) : call{call} {std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;}
   call_t call{};
 };
 template <class... TEvents>
@@ -654,15 +663,17 @@ struct queue_handler : queue_event_call<TEvents>... {
   queue_handler() = default;
   template <class TQueue, class = typename TQueue::container_type>
   explicit queue_handler(TQueue &queue)
-      : queue_event_call<TEvents>(queue_handler::push_impl<TQueue, TEvents>)..., queue_{&queue} {}
+      : queue_event_call<TEvents>(queue_handler::push_impl<TQueue, TEvents>)..., queue_{&queue} {std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;}
   template <class TEvent>
   void operator()(const TEvent &event) {
+    std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;
     static_cast<queue_event_call<TEvent> *>(this)->call(queue_, event);
   }
 
  private:
   template <class TQueue, class TEvent>
   static auto push_impl(void *queue, const TEvent &event) {
+    std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;
     static_cast<TQueue *>(queue)->push(event);
   }
   void *queue_{};
@@ -703,24 +714,24 @@ struct anonymous : internal_event {
 template <class T, class TEvent = T>
 struct on_entry : internal_event, entry_exit {
   static auto c_str() { return "on_entry"; }
-  explicit on_entry(const TEvent &event = {}) : event_(event) {}
+  explicit on_entry(const TEvent &event = {}) : event_(event) {std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;}
   const TEvent &event_;
 };
 template <class T, class TEvent = T>
 struct on_exit : internal_event, entry_exit {
   static auto c_str() { return "on_exit"; }
-  explicit on_exit(const TEvent &event = {}) : event_(event) {}
+  explicit on_exit(const TEvent &event = {}) : event_(event) {std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;}
   const TEvent &event_;
 };
 template <class T, class TException = T>
 struct exception : internal_event {
   using type = TException;
-  explicit exception(const TException &exception = {}) : exception_(exception) {}
+  explicit exception(const TException &exception = {}) : exception_(exception) {std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;}
   const TException &exception_;
 };
 template <class T, class TEvent = T>
 struct unexpected_event : internal_event, unexpected {
-  explicit unexpected_event(const TEvent &event = {}) : event_(event) {}
+  explicit unexpected_event(const TEvent &event = {}) : event_(event) {std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;}
   const TEvent &event_;
 };
 template <class TEvent>
@@ -907,6 +918,7 @@ struct transitions<T, Ts...> {
     if (aux::get<T>(sm.transitions_).execute(event, sm, deps, subs, current_state, typename SM::has_entry_exits{})) {
       return true;
     }
+    std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;
     return transitions<Ts...>::execute(event, sm, deps, subs, current_state);
   }
 };
@@ -914,6 +926,7 @@ template <class T>
 struct transitions<T> {
   template <class TEvent, class SM, class TDeps, class TSubs>
   static bool execute(const TEvent &event, SM &sm, TDeps &deps, TSubs &subs, typename SM::state_t &current_state) {
+    std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;
     return aux::get<T>(sm.transitions_).execute(event, sm, deps, subs, current_state, typename SM::has_entry_exits{});
   }
 };
@@ -922,6 +935,7 @@ struct transitions<aux::true_type> {
   template <class TEvent, class SM, class TDeps, class TSubs>
   static bool execute(const TEvent &event, SM &sm, TDeps &deps, TSubs &subs, typename SM::state_t &current_state) {
     sm.process_internal_event(unexpected_event<TEvent>{event}, deps, subs, current_state);
+    std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;
     return false;
   }
 };
@@ -929,6 +943,7 @@ template <>
 struct transitions<aux::false_type> {
   template <class TEvent, class SM, class TDeps, class TSubs>
   static bool execute(const TEvent &, SM &, TDeps &, TSubs &, typename SM::state_t &) {
+    std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;
     return false;
   }
 };
@@ -936,10 +951,12 @@ template <class TSM, class T, class... Ts>
 struct transitions_sub<sm<TSM>, T, Ts...> {
   template <class TEvent, class SM, class TDeps, class TSubs>
   static bool execute(const TEvent &event, SM &sm, TDeps &deps, TSubs &subs, typename SM::state_t &current_state) {
+    std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;
     return execute_impl(event, sm, deps, subs, current_state);
   }
   template <class, class SM, class TDeps, class TSubs>
   static bool execute(const anonymous &event, SM &sm, TDeps &deps, TSubs &subs, typename SM::state_t &current_state) {
+    std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;
     if (sub_sm<sm_impl<TSM>>::cget(&subs).is_terminated()) {
       const auto handled = sub_sm<sm_impl<TSM>>::get(&subs).process_event(event, deps, subs);
       return handled ? handled : transitions<T, Ts...>::execute(event, sm, deps, subs, current_state);
@@ -949,11 +966,13 @@ struct transitions_sub<sm<TSM>, T, Ts...> {
   template <class TEvent, class SM, class TDeps, class TSubs>
   static bool execute_impl(const TEvent &event, SM &sm, TDeps &deps, TSubs &subs, typename SM::state_t &current_state) {
     const auto handled = sub_sm<sm_impl<TSM>>::get(&subs).process_event(event, deps, subs);
+    std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;
     return handled ? handled : transitions<T, Ts...>::execute(event, sm, deps, subs, current_state);
   }
   template <class _, class TEvent, class SM, class TDeps, class TSubs>
   static bool execute_impl(const back::on_entry<_, TEvent> &event, SM &sm, TDeps &deps, TSubs &subs,
                            typename SM::state_t &current_state) {
+    std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;
     transitions<T, Ts...>::execute(event, sm, deps, subs, current_state);
     sub_sm<sm_impl<TSM>>::get(&subs).process_event(event, deps, subs);
     return true;
@@ -961,6 +980,7 @@ struct transitions_sub<sm<TSM>, T, Ts...> {
   template <class _, class TEvent, class SM, class TDeps, class TSubs>
   static bool execute_impl(const back::on_exit<_, TEvent> &event, SM &sm, TDeps &deps, TSubs &subs,
                            typename SM::state_t &current_state) {
+    std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;
     sub_sm<sm_impl<TSM>>::get(&subs).process_event(event, deps, subs);
     transitions<T, Ts...>::execute(event, sm, deps, subs, current_state);
     return true;
@@ -970,10 +990,12 @@ template <class TSM>
 struct transitions_sub<sm<TSM>> {
   template <class TEvent, class SM, class TDeps, class TSubs>
   static bool execute(const TEvent &event, SM &, TDeps &deps, TSubs &subs, typename SM::state_t &) {
+    std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;
     return sub_sm<sm_impl<TSM>>::get(&subs).process_event(event, deps, subs);
   }
   template <class, class SM, class TDeps, class TSubs>
   static bool execute(const anonymous &, SM &, TDeps &, TSubs &, typename SM::state_t &) {
+    std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;
     return false;
   }
 };
@@ -1703,10 +1725,12 @@ class sm {
   sm() : deps_{aux::init{}, aux::pool<>{}}, sub_sms_{aux::pool<>{}} { aux::get<sm_impl<TSM>>(sub_sms_).start(deps_, sub_sms_); }
   template <class TDeps, __BOOST_SML_REQUIRES(!aux::is_same<aux::remove_reference_t<TDeps>, sm>::value)>
   explicit sm(TDeps &&deps) : deps_{aux::init{}, aux::pool<TDeps>{deps}}, sub_sms_{aux::pool<TDeps>{deps}} {
+    std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;
     aux::get<sm_impl<TSM>>(sub_sms_).start(deps_, sub_sms_);
   }
   template <class... TDeps, __BOOST_SML_REQUIRES((sizeof...(TDeps) > 1) && aux::is_unique_t<TDeps...>::value)>
   explicit sm(TDeps &&... deps) : deps_{aux::init{}, aux::pool<TDeps...>{deps...}}, sub_sms_{aux::pool<TDeps...>{deps...}} {
+    std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;
     aux::get<sm_impl<TSM>>(sub_sms_).start(deps_, sub_sms_);
   }
   sm(aux::init, deps_t &deps) : deps_{deps}, sub_sms_{deps} { aux::get<sm_impl<TSM>>(sub_sms_).start(deps_, sub_sms_); }
@@ -1891,16 +1915,19 @@ struct call<TEvent, aux::type_list<TEvent>, TLogger> {
   template <class T, class TSM, class TDeps, class TSubs>
   static auto execute(T object, const TEvent &event, TSM &, TDeps &deps, TSubs &) {
     using result_type = decltype(object(event));
+    std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;
     return execute_impl<typename TSM::sm_t>(aux::type<result_type>{}, object, event, deps);
   }
   template <class TSM, class T, class TDeps>
   static auto execute_impl(const aux::type<bool> &, T object, const TEvent &event, TDeps &deps) {
     const auto result = object(event);
     back::policies::log_guard<TSM>(aux::type<TLogger>{}, deps, object, event, result);
+    std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;
     return result;
   }
   template <class TSM, class T, class TDeps>
   static auto execute_impl(const aux::type<void> &, T object, const TEvent &event, TDeps &deps) {
+    std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;
     back::policies::log_action<TSM>(aux::type<TLogger>{}, deps, object, event);
     object(event);
   }
@@ -1909,6 +1936,7 @@ template <class TEvent>
 struct call<TEvent, aux::type_list<action_base>, back::no_policy> {
   template <class T, class TSM, class TDeps, class TSubs>
   static auto execute(T object, const TEvent &event, TSM &sm, TDeps &deps, TSubs &subs) {
+    std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;
     return object(event, sm, deps, subs);
   }
 };
@@ -1916,6 +1944,7 @@ template <class TEvent, class TLogger>
 struct call<TEvent, aux::type_list<action_base>, TLogger> {
   template <class T, class TSM, class TDeps, class TSubs>
   static auto execute(T object, const TEvent &event, TSM &sm, TDeps &deps, TSubs &subs) {
+    std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;
     return object(event, sm, deps, subs);
   }
 };
@@ -1923,6 +1952,7 @@ template <class TEvent, class... Ts>
 struct call<TEvent, aux::type_list<Ts...>, back::no_policy> {
   template <class T, class TSM, class TDeps, class TSubs>
   static auto execute(T object, const TEvent &event, TSM &sm, TDeps &deps, TSubs &) {
+    std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;
     return object(get_arg(aux::type<Ts>{}, event, sm, deps)...);
   }
 };
@@ -1931,18 +1961,21 @@ struct call<TEvent, aux::type_list<Ts...>, TLogger> {
   template <class T, class TSM, class TDeps, class TSubs>
   static auto execute(T object, const TEvent &event, TSM &sm, TDeps &deps, TSubs &) {
     using result_type = decltype(object(get_arg(aux::type<Ts>{}, event, sm, deps)...));
+    std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;
     return execute_impl<typename TSM::sm_t>(aux::type<result_type>{}, object, event, sm, deps);
   }
   template <class TSM, class T, class SM, class TDeps>
   static auto execute_impl(const aux::type<bool> &, T object, const TEvent &event, SM &sm, TDeps &deps) {
     const auto result = object(get_arg(aux::type<Ts>{}, event, sm, deps)...);
     back::policies::log_guard<TSM>(aux::type<TLogger>{}, deps, object, event, result);
+    std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;
     return result;
   }
   template <class TSM, class T, class SM, class TDeps>
   static auto execute_impl(const aux::type<void> &, T object, const TEvent &event, SM &sm, TDeps &deps) {
     back::policies::log_action<TSM>(aux::type<TLogger>{}, deps, object, event);
     object(get_arg(aux::type<Ts>{}, event, sm, deps)...);
+    std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;
   }
 };
 template <class... Ts>
@@ -2082,7 +2115,9 @@ using sm = back::sm<back::sm_policy<T, TPolicies...>>;
 namespace front {
 template <class T, class... TPolicies>
 struct sm : back::sm<back::sm_policy<T, TPolicies...>> {
-  constexpr sm(T t) : back::sm<back::sm_policy<T, TPolicies...>>::sm{t} {}
+  constexpr sm(T t) : back::sm<back::sm_policy<T, TPolicies...>>::sm{t} {
+    std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;
+  }
   using back::sm<back::sm_policy<T, TPolicies...>>::sm;
 };
 }  // namespace front
@@ -2104,6 +2139,7 @@ struct process {
     explicit process_impl(const TEvent &event) : event(event) {}
     template <class T, class TSM, class TDeps, class TSubs>
     void operator()(const T &, TSM &, TDeps &, TSubs &subs) {
+      std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;
       aux::get<get_root_sm_t<TSubs>>(subs).process_.push(event);
     }
 
@@ -2112,6 +2148,7 @@ struct process {
   };
   template <class TEvent>
   auto operator()(const TEvent &event) {
+    std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;
     return process_impl<TEvent>{event};
   }
 };
@@ -2126,13 +2163,18 @@ template <class TEvent>
 struct event {
   template <class T, __BOOST_SML_REQUIRES(concepts::callable<bool, T>::value)>
   auto operator[](const T &t) const {
+    std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;
     return transition_eg<event, aux::zero_wrapper<T>>{*this, aux::zero_wrapper<T>{t}};
   }
   template <class T, __BOOST_SML_REQUIRES(concepts::callable<void, T>::value)>
   auto operator/(const T &t) const {
+    std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;
     return transition_ea<event, aux::zero_wrapper<T>>{*this, aux::zero_wrapper<T>{t}};
   }
-  auto operator()() const { return TEvent{}; }
+  auto operator()() const {
+    std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;
+    return TEvent{};
+  }
 };
 }  // namespace front
 namespace front {
@@ -2152,18 +2194,22 @@ template <class TState>
 struct state_impl {
   template <class T>
   auto operator<=(const T &t) const {
+    std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;
     return transition<TState, T>{static_cast<const TState &>(*this), t};
   }
   template <class T>
   auto operator+(const T &t) const {
+    std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;
     return transition<TState, T>{static_cast<const TState &>(*this), t};
   }
   template <class T, __BOOST_SML_REQUIRES(concepts::callable<bool, T>::value)>
   auto operator[](const T &t) const {
+    std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;
     return transition_sg<TState, aux::zero_wrapper<T>>{static_cast<const TState &>(*this), aux::zero_wrapper<T>{t}};
   }
   template <class T, __BOOST_SML_REQUIRES(concepts::callable<void, T>::value)>
   auto operator/(const T &t) const {
+    std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;
     return transition_sa<TState, aux::zero_wrapper<T>>{static_cast<const TState &>(*this), aux::zero_wrapper<T>{t}};
   }
 };
@@ -2173,18 +2219,25 @@ struct state : state_impl<state<TState>> {
   static constexpr auto initial = false;
   static constexpr auto history = false;
   auto operator*() const { return state<TState(initial_state)>{}; }
-  auto operator()(const initial_state &) const { return state<TState(initial_state)>{}; }
-  auto operator()(const history_state &) const { return state<TState(history_state)>{}; }
+  auto operator()(const initial_state &) const {
+    std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;
+    return state<TState(initial_state)>{}; }
+  auto operator()(const history_state &) const {
+    std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;
+    return state<TState(history_state)>{}; }
   template <class... Ts>
   auto operator()(const state<Ts> &...) const {
+    std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;
     return state<TState(Ts...)>{};
   }
   template <class T>
   auto operator=(const T &t) const {
+    std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;
     return transition<T, state>{t, *this};
   }
   template <class T>
   auto sm() const {
+    std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;
     return state<back::sm<back::sm_policy<T, aux::identity<TState>>>>{};
   }
 };
@@ -2195,6 +2248,7 @@ struct state<TState(initial_state)> : state_impl<state<TState(initial_state)>> {
   static constexpr auto history = false;
   template <class T>
   auto operator=(const T &t) const {
+    std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;
     return transition<T, state>{t, *this};
   }
 };
@@ -2205,6 +2259,7 @@ struct state<TState(history_state)> : state_impl<state<TState(history_state)>> {
   static constexpr auto history = true;
   template <class T>
   auto operator=(const T &t) const {
+    std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;
     return transition<T, state>{t, *this};
   }
 };
@@ -2287,25 +2342,32 @@ struct transition<state<S2>, G, A> : transition<state<internal>, state<S2>, fron
   transition(const G &g, const A &a) : transition<state<internal>, state<S2>, front::event<back::anonymous>, G, A>{g, a} {}
   template <class T>
   auto operator=(const T &) const {
+    std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;
     return transition<T, state<S2>, front::event<back::anonymous>, G, A>{g, a};
   }
 };
 template <class S1, class S2>
 struct transition<state<S1>, state<S2>> : transition<state<S1>, state<S2>, front::event<back::anonymous>, always, none> {
   transition(const state<S1> &, const state<S2> &)
-      : transition<state<S1>, state<S2>, front::event<back::anonymous>, always, none>{always{}, none{}} {}
+      : transition<state<S1>, state<S2>, front::event<back::anonymous>, always, none>{always{}, none{}} {
+            std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;
+      }
 };
 template <class S2, class G>
 struct transition_sg<state<S2>, G> : transition<state<internal>, state<S2>, front::event<back::anonymous>, G, none> {
   using transition<state<internal>, state<S2>, front::event<back::anonymous>, G, none>::g;
   transition_sg(const state<S2> &, const G &g)
-      : transition<state<internal>, state<S2>, front::event<back::anonymous>, G, none>{g, none{}} {}
+      : transition<state<internal>, state<S2>, front::event<back::anonymous>, G, none>{g, none{}} {
+        std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;
+      }
   template <class T>
   auto operator/(const T &t) const {
+    std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;
     return transition<state<S2>, G, aux::zero_wrapper<T>>{g, aux::zero_wrapper<T>{t}};
   }
   template <class T>
   auto operator=(const T &) const {
+    std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;
     return transition<T, state<S2>, front::event<back::anonymous>, G, none>{g, none{}};
   }
 };
@@ -2313,9 +2375,12 @@ template <class S2, class A>
 struct transition_sa<state<S2>, A> : transition<state<internal>, state<S2>, front::event<back::anonymous>, always, A> {
   using transition<state<internal>, state<S2>, front::event<back::anonymous>, always, A>::a;
   transition_sa(const state<S2> &, const A &a)
-      : transition<state<internal>, state<S2>, front::event<back::anonymous>, always, A>{always{}, a} {}
+      : transition<state<internal>, state<S2>, front::event<back::anonymous>, always, A>{always{}, a} {
+        std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;
+      }
   template <class T>
   auto operator=(const T &) const {
+    std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;
     return transition<T, state<S2>, front::event<back::anonymous>, always, A>{always{}, a};
   }
 };
@@ -2323,6 +2388,7 @@ template <class S2, class E>
 struct transition<state<S2>, front::event<E>> {
   template <class T>
   auto operator=(const T &) const {
+    std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;
     return transition<T, state<S2>, front::event<E>, always, none>{always{}, none{}};
   }
   const state<S2> &s2;
@@ -2332,6 +2398,7 @@ template <class E, class G>
 struct transition_eg<front::event<E>, G> {
   template <class T>
   auto operator/(const T &t) const {
+    std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;
     return transition<front::event<E>, G, aux::zero_wrapper<T>>{e, g, aux::zero_wrapper<T>{t}};
   }
   front::event<E> e;
@@ -2346,7 +2413,9 @@ template <class S1, class S2, class G, class A>
 struct transition<state<S1>, transition<state<S2>, G, A>>
     : transition<state<S1>, state<S2>, front::event<back::anonymous>, G, A> {
   transition(const state<S1> &, const transition<state<S2>, G, A> &t)
-      : transition<state<S1>, state<S2>, front::event<back::anonymous>, G, A>{t.g, t.a} {}
+      : transition<state<S1>, state<S2>, front::event<back::anonymous>, G, A>{t.g, t.a} {
+        std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;
+      }
 };
 template <class S1, class E, class G, class A>
 struct transition<state<S1>, transition<front::event<E>, G, A>>
@@ -2354,9 +2423,12 @@ struct transition<state<S1>, transition<front::event<E>, G, A>>
   using transition<state<internal>, state<S1>, front::event<E>, G, A>::g;
   using transition<state<internal>, state<S1>, front::event<E>, G, A>::a;
   transition(const state<S1> &, const transition<front::event<E>, G, A> &t)
-      : transition<state<internal>, state<S1>, front::event<E>, G, A>{t.g, t.a} {}
+      : transition<state<internal>, state<S1>, front::event<E>, G, A>{t.g, t.a} {
+        std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;
+      }
   template <class T>
   auto operator=(const T &) const {
+    std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;
     return transition<T, state<S1>, front::event<E>, G, A>{g, a};
   }
 };
@@ -2364,28 +2436,37 @@ template <class S1, class S2, class E>
 struct transition<state<S1>, transition<state<S2>, front::event<E>>>
     : transition<state<S1>, state<S2>, front::event<E>, always, none> {
   transition(const state<S1> &, const transition<state<S2>, front::event<E>> &)
-      : transition<state<S1>, state<S2>, front::event<E>, always, none>{always{}, none{}} {}
+      : transition<state<S1>, state<S2>, front::event<E>, always, none>{always{}, none{}} {
+        std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;
+      }
 };
 template <class S1, class S2, class G>
 struct transition<state<S1>, transition_sg<state<S2>, G>>
     : transition<state<S1>, state<S2>, front::event<back::anonymous>, G, none> {
   transition(const state<S1> &, const transition_sg<state<S2>, G> &t)
-      : transition<state<S1>, state<S2>, front::event<back::anonymous>, G, none>{t.g, none{}} {}
+      : transition<state<S1>, state<S2>, front::event<back::anonymous>, G, none>{t.g, none{}} {
+        std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;
+      }
 };
 template <class S1, class S2, class A>
 struct transition<state<S1>, transition_sa<state<S2>, A>>
     : transition<state<S1>, state<S2>, front::event<back::anonymous>, always, A> {
   transition(const state<S1> &, const transition_sa<state<S2>, A> &t)
-      : transition<state<S1>, state<S2>, front::event<back::anonymous>, always, A>{always{}, t.a} {}
+      : transition<state<S1>, state<S2>, front::event<back::anonymous>, always, A>{always{}, t.a} {
+        std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;
+      }
 };
 template <class S2, class E, class G>
 struct transition<state<S2>, transition_eg<front::event<E>, G>>
     : transition<state<internal>, state<S2>, front::event<E>, G, none> {
   using transition<state<internal>, state<S2>, front::event<E>, G, none>::g;
   transition(const state<S2> &, const transition_eg<front::event<E>, G> &t)
-      : transition<state<internal>, state<S2>, front::event<E>, G, none>{t.g, none{}} {}
+      : transition<state<internal>, state<S2>, front::event<E>, G, none>{t.g, none{}} {
+        std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;
+      }
   template <class T>
   auto operator=(const T &) const {
+    std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;
     return transition<T, state<S2>, front::event<E>, G, none>{g, none{}};
   }
 };
@@ -2393,16 +2474,21 @@ template <class S1, class S2, class E, class G>
 struct transition<state<S1>, transition<state<S2>, transition_eg<front::event<E>, G>>>
     : transition<state<S1>, state<S2>, front::event<E>, G, none> {
   transition(const state<S1> &, const transition<state<S2>, transition_eg<front::event<E>, G>> &t)
-      : transition<state<S1>, state<S2>, front::event<E>, G, none>{t.g, none{}} {}
+      : transition<state<S1>, state<S2>, front::event<E>, G, none>{t.g, none{}} {
+        std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;
+      }
 };
 template <class S2, class E, class A>
 struct transition<state<S2>, transition_ea<front::event<E>, A>>
     : transition<state<internal>, state<S2>, front::event<E>, always, A> {
   using transition<state<internal>, state<S2>, front::event<E>, always, A>::a;
   transition(const state<S2> &, const transition_ea<front::event<E>, A> &t)
-      : transition<state<internal>, state<S2>, front::event<E>, always, A>{always{}, t.a} {}
+      : transition<state<internal>, state<S2>, front::event<E>, always, A>{always{}, t.a} {
+        std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;
+      }
   template <class T>
   auto operator=(const T &) const {
+    std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;
     return transition<T, state<S2>, front::event<E>, always, A>{always{}, a};
   }
 };
@@ -2410,16 +2496,21 @@ template <class S1, class S2, class E, class A>
 struct transition<state<S1>, transition<state<S2>, transition_ea<front::event<E>, A>>>
     : transition<state<S1>, state<S2>, front::event<E>, always, A> {
   transition(const state<S1> &, const transition<state<S2>, transition_ea<front::event<E>, A>> &t)
-      : transition<state<S1>, state<S2>, front::event<E>, always, A>{always{}, t.a} {}
+      : transition<state<S1>, state<S2>, front::event<E>, always, A>{always{}, t.a} {
+        std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;
+      }
 };
 template <class S1, class S2, class E, class G, class A>
 struct transition<state<S1>, transition<state<S2>, transition<front::event<E>, G, A>>>
     : transition<state<S1>, state<S2>, front::event<E>, G, A> {
   transition(const state<S1> &, const transition<state<S2>, transition<front::event<E>, G, A>> &t)
-      : transition<state<S1>, state<S2>, front::event<E>, G, A>{t.g, t.a} {}
+      : transition<state<S1>, state<S2>, front::event<E>, G, A>{t.g, t.a} {
+        std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;
+      }
 };
 template <class T, class TSubs, class... Ts, class... THs>
 void update_composite_states(TSubs &subs, aux::true_type, const aux::type_list<THs...> &) {
+  std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;
   using state_t = typename T::state_t;
   auto &sm = back::sub_sm<T>::get(&subs);
   (void)sm;
@@ -2435,11 +2526,13 @@ void update_composite_states(TSubs &subs, aux::true_type, const aux::type_list<T
 }
 template <class T, class TSubs, class... Ts>
 void update_composite_states(TSubs &subs, aux::false_type, Ts &&...) {
+  std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;
   back::sub_sm<T>::get(&subs).initialize(typename T::initial_states_t{});
 }
 template <class SM, class TDeps, class TSubs, class TSrcState, class TDstState>
 void update_current_state(SM &, TDeps &deps, TSubs &, typename SM::state_t &current_state,
                           const typename SM::state_t &new_state, const TSrcState &, const TDstState &) {
+  std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;
   back::policies::log_state_change<typename SM::sm_t>(aux::type<typename SM::logger_t>{}, deps,
                                                       aux::string<typename TSrcState::type>{},
                                                       aux::string<typename TDstState::type>{});
@@ -2448,6 +2541,7 @@ void update_current_state(SM &, TDeps &deps, TSubs &, typename SM::state_t &curr
 template <class SM, class TDeps, class TSubs, class TSrcState, class T>
 void update_current_state(SM &, TDeps &deps, TSubs &subs, typename SM::state_t &current_state,
                           const typename SM::state_t &new_state, const TSrcState &, const state<back::sm<T>> &) {
+  std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;
   back::policies::log_state_change<typename SM::sm_t>(aux::type<typename SM::logger_t>{}, deps,
                                                       aux::string<typename TSrcState::type>{}, aux::string<T>{});
   current_state = new_state;
@@ -2464,9 +2558,10 @@ struct transition<state<S1>, state<S2>, front::event<E>, G, A> {
   using guard = G;
   using action = A;
   using deps = aux::apply_t<aux::unique_t, aux::join_t<get_deps_t<G, E>, get_deps_t<A, E>>>;
-  transition(const G &g, const A &a) : g(g), a(a) {}
+  transition(const G &g, const A &a) : g(g), a(a) {std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;}
   template <class TEvent, class SM, class TDeps, class TSubs>
   bool execute(const TEvent &event, SM &sm, TDeps &deps, TSubs &subs, typename SM::state_t &current_state, aux::true_type) {
+    std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;
     if (call<TEvent, args_t<G, TEvent>, typename SM::logger_t>::execute(g, event, sm, deps, subs)) {
       sm.process_internal_event(back::on_exit<back::_, TEvent>{event}, deps, subs, current_state);
       update_current_state(sm, deps, subs, current_state,
@@ -2480,6 +2575,7 @@ struct transition<state<S1>, state<S2>, front::event<E>, G, A> {
   }
   template <class TEvent, class SM, class TDeps, class TSubs>
   bool execute(const TEvent &event, SM &sm, TDeps &deps, TSubs &subs, typename SM::state_t &current_state, aux::false_type) {
+    std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;
     if (call<TEvent, args_t<G, TEvent>, typename SM::logger_t>::execute(g, event, sm, deps, subs)) {
       update_current_state(sm, deps, subs, current_state,
                            aux::get_id<typename SM::state_t, dst_state>((typename SM::states_ids_t *)0), state<src_state>{},
@@ -2502,9 +2598,10 @@ struct transition<state<internal>, state<S2>, front::event<E>, G, A> {
   using guard = G;
   using action = A;
   using deps = aux::apply_t<aux::unique_t, aux::join_t<get_deps_t<G, E>, get_deps_t<A, E>>>;
-  transition(const G &g, const A &a) : g(g), a(a) {}
+  transition(const G &g, const A &a) : g(g), a(a) {std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;}
   template <class TEvent, class SM, class TDeps, class TSubs, class... Ts>
   bool execute(const TEvent &event, SM &sm, TDeps &deps, TSubs &subs, typename SM::state_t &, Ts &&...) {
+    std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;
     if (call<TEvent, args_t<G, TEvent>, typename SM::logger_t>::execute(g, event, sm, deps, subs)) {
       call<TEvent, args_t<A, TEvent>, typename SM::logger_t>::execute(a, event, sm, deps, subs);
       return true;
@@ -2524,9 +2621,10 @@ struct transition<state<S1>, state<S2>, front::event<E>, always, A> {
   using guard = always;
   using action = A;
   using deps = aux::apply_t<aux::unique_t, get_deps_t<A, E>>;
-  transition(const always &, const A &a) : a(a) {}
+  transition(const always &, const A &a) : a(a) {std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;}
   template <class TEvent, class SM, class TDeps, class TSubs>
   bool execute(const TEvent &event, SM &sm, TDeps &deps, TSubs &subs, typename SM::state_t &current_state, aux::true_type) {
+    std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;
     sm.process_internal_event(back::on_exit<back::_, TEvent>{event}, deps, subs, current_state);
     update_current_state(sm, deps, subs, current_state,
                          aux::get_id<typename SM::state_t, dst_state>((typename SM::states_ids_t *)0), state<src_state>{},
@@ -2555,9 +2653,10 @@ struct transition<state<internal>, state<S2>, front::event<E>, always, A> {
   using guard = always;
   using action = A;
   using deps = aux::apply_t<aux::unique_t, get_deps_t<A, E>>;
-  transition(const always &, const A &a) : a(a) {}
+  transition(const always &, const A &a) : a(a) {std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;}
   template <class TEvent, class SM, class TDeps, class TSubs, class... Ts>
   bool execute(const TEvent &event, SM &sm, TDeps &deps, TSubs &subs, typename SM::state_t &, Ts &&...) {
+    std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;
     call<TEvent, args_t<A, TEvent>, typename SM::logger_t>::execute(a, event, sm, deps, subs);
     return true;
   }
@@ -2573,9 +2672,10 @@ struct transition<state<S1>, state<S2>, front::event<E>, G, none> {
   using guard = G;
   using action = none;
   using deps = aux::apply_t<aux::unique_t, get_deps_t<G, E>>;
-  transition(const G &g, const none &) : g(g) {}
+  transition(const G &g, const none &) : g(g) {std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;}
   template <class TEvent, class SM, class TDeps, class TSubs>
   bool execute(const TEvent &event, SM &sm, TDeps &deps, TSubs &subs, typename SM::state_t &current_state, aux::true_type) {
+    std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;
     if (call<TEvent, args_t<G, TEvent>, typename SM::logger_t>::execute(g, event, sm, deps, subs)) {
       sm.process_internal_event(back::on_exit<back::_, TEvent>{event}, deps, subs, current_state);
       update_current_state(sm, deps, subs, current_state,
@@ -2589,6 +2689,7 @@ struct transition<state<S1>, state<S2>, front::event<E>, G, none> {
   template <class TEvent, class SM, class TDeps, class TSubs>
   bool execute(const TEvent &event, SM &sm, TDeps &deps, TSubs &subs, typename SM::state_t &current_state, aux::false_type) {
     if (call<TEvent, args_t<G, TEvent>, typename SM::logger_t>::execute(g, event, sm, deps, subs)) {
+      std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;
       update_current_state(sm, deps, subs, current_state,
                            aux::get_id<typename SM::state_t, dst_state>((typename SM::states_ids_t *)0), state<src_state>{},
                            state<dst_state>{});
@@ -2608,9 +2709,10 @@ struct transition<state<internal>, state<S2>, front::event<E>, G, none> {
   using guard = G;
   using action = none;
   using deps = aux::apply_t<aux::unique_t, get_deps_t<G, E>>;
-  transition(const G &g, const none &) : g(g) {}
+  transition(const G &g, const none &) : g(g) {std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;}
   template <class TEvent, class SM, class TDeps, class TSubs, class... Ts>
   bool execute(const TEvent &event, SM &sm, TDeps &deps, TSubs &subs, typename SM::state_t &, Ts &&...) {
+    std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;
     return call<TEvent, args_t<G, TEvent>, typename SM::logger_t>::execute(g, event, sm, deps, subs);
   }
   G g;
@@ -2625,9 +2727,10 @@ struct transition<state<S1>, state<S2>, front::event<E>, always, none> {
   using guard = always;
   using action = none;
   using deps = aux::type_list<>;
-  transition(const always &, const none &) {}
+  transition(const always &, const none &) {std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;}
   template <class TEvent, class SM, class TDeps, class TSubs>
   bool execute(const TEvent &event, SM &sm, TDeps &deps, TSubs &subs, typename SM::state_t &current_state, aux::true_type) {
+    std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;
     sm.process_internal_event(back::on_exit<back::_, TEvent>{event}, deps, subs, current_state);
     update_current_state(sm, deps, subs, current_state,
                          aux::get_id<typename SM::state_t, dst_state>((typename SM::states_ids_t *)0), state<src_state>{},
@@ -2637,6 +2740,7 @@ struct transition<state<S1>, state<S2>, front::event<E>, always, none> {
   }
   template <class TEvent, class SM, class TDeps, class TSubs>
   bool execute(const TEvent &, SM &sm, TDeps &deps, TSubs &subs, typename SM::state_t &current_state, aux::false_type) {
+    std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;
     update_current_state(sm, deps, subs, current_state,
                          aux::get_id<typename SM::state_t, dst_state>((typename SM::states_ids_t *)0), state<src_state>{},
                          state<dst_state>{});
@@ -2654,9 +2758,10 @@ struct transition<state<internal>, state<S2>, front::event<E>, always, none> {
   using guard = always;
   using action = none;
   using deps = aux::type_list<>;
-  transition(const always &, const none &) {}
+  transition(const always &, const none &) {std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;}
   template <class TEvent, class SM, class TDeps, class TSubs, class... Ts>
   bool execute(const TEvent &, SM &, TDeps &, TSubs &, typename SM::state_t &, Ts &&...) {
+    std::cout << __PRETTY_FUNCTION__ << std::endl << std::endl;
     return true;
   }
   __BOOST_SML_ZERO_SIZE_ARRAY(aux::byte);
